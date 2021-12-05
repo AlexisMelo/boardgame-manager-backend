@@ -17,13 +17,13 @@ app.use(express.static(path.join(__dirname, "views/")))
 
 app.use(express.json())
 
-let rooms = []
-
 io.use((socket, next) => {
     const username = socket.handshake.auth.username
     if (!username) {
         return next(new Error("invalid username"))
     }
+    const room = socket.handshake.query.destinationRoom
+    socket.join(room)
     socket.username = username
     next()
 })
@@ -31,19 +31,25 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
     console.log(`Nouvelle socket de ${socket.username} connectée !`)
 
+    for(const room of socket.rooms) {
+        socket.to(room).emit("socket_connecting", {username : socket.username})
+    }
+
     socket.on("object-added", data => {
-        socket.broadcast.emit("new-add", data)
+        socket.to(data.room).emit("new-add", {obj : data.obj, obj_id: data.obj_id})
     })
 
     socket.on("object-modified", data => {
-        socket.broadcast.emit("new-modification", data)
+        socket.to(data.room).emit("new-modification", {obj : data.obj, obj_id: data.obj_id})
     })
 
-    socket.on("disconnect", () => {
-        console.log(`Socket ${socket.username} déconnectée `)
+    socket.on("disconnecting", () => {
+        for(const room of  socket.rooms) {
+            socket.to(room).emit("socket_disconnecting", {username : socket.username})
+        }
+        console.log(`Socket de ${socket.username} déconnectée !`)
     })
 })
-
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
