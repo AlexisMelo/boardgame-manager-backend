@@ -31,7 +31,7 @@ io.use((socket, next) => {
         allRooms[roomToJoin] = new Room(roomToJoin)
     }
 
-    allRooms[roomToJoin].join(socket.username, socket)
+    allRooms[roomToJoin].join(username, socket)
     socket.username = username
     next()
 })
@@ -40,11 +40,15 @@ io.on("connection", (socket) => {
     console.log(`Nouvelle socket de ${socket.username} connectée !`)
 
     for (const room of socket.rooms) {
-        socket.to(room).emit("socket_connecting", {username: socket.username})
+        socket.to(room).emit("socket_connecting", socket.username)
     }
 
     socket.on("init-objects", data => {
         socket.emit("init-objects", allRooms[data.room].objects)
+    })
+
+    socket.on("init-players", data => {
+        socket.emit("init-players", Object.keys(allRooms[data.room].players))
     })
 
     socket.on("object-added", data => {
@@ -61,7 +65,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnecting", () => {
         for (const room of socket.rooms) {
-            socket.to(room).emit("socket_disconnecting", {username: socket.username})
+            socket.to(room).emit("socket_disconnecting", socket.username)
         }
         console.log(`Socket de ${socket.username} déconnectée !`)
     })

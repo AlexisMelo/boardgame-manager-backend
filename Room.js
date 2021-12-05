@@ -1,11 +1,10 @@
 class Room {
-    players = null
+    players = {}
     name = null
     objects = []
 
     constructor(name) {
         this.name = name
-        this.players = {}
     }
 
     join(username, socket) {
@@ -26,7 +25,6 @@ class Room {
         }
         if (!object_replaced) {
             this.objects.push(object)
-            console.log("j'ajoute un nouvel objet " + object.id + " dans " + this.name)
         }
     }
 }
