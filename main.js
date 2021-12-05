@@ -66,6 +66,9 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
         for (const room of socket.rooms) {
             socket.to(room).emit("socket_disconnecting", socket.username)
+            if (Object.keys(allRooms).includes(room)) {
+                allRooms[room].leave(socket.username, socket)
+            }
         }
         console.log(`Socket de ${socket.username} déconnectée !`)
     })

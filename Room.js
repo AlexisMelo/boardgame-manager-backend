@@ -15,6 +15,11 @@ class Room {
         socket.join(this.name)
     }
 
+    leave(username, socket) {
+        socket.leave(this.name)
+        delete this.players[username]
+    }
+
     addOrReplaceObject(object) {
         let object_replaced = false
         for (let i = 0; i < this.objects.length; i++) {
