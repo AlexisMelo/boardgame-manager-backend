@@ -1,10 +1,11 @@
 class Room {
     players = {}
     name = null
-    objects = []
+    objects = null
 
-    constructor(name) {
+    constructor(name, objects) {
         this.name = name
+        this.objects = objects || []
     }
 
     join(username, socket) {
