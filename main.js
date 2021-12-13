@@ -45,7 +45,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
     console.log(`Nouvelle socket de ${socket.username} connectée !`)
-
+    console.log(allRooms)
     for (const room of socket.rooms) {
         socket.to(room).emit("socket_connecting", socket.username)
     }
@@ -99,6 +99,9 @@ router.get("/room/:room_id", function(req, res) {
     return res.status(404).send({message: "Room does not exist"})
 })
 
+router.get("/rooms", function(req, res) {
+    res.status(200).send({rooms : Object.keys(allRooms)})
+})
 app.use("/", router)
 
 server.listen(port, hostname, () => {
